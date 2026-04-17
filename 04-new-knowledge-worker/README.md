@@ -1,6 +1,6 @@
 # Tutorial 4: The New Knowledge Worker — Thriving in the Age of AI Agents
 
-- **Video:** <https://youtu.be/UI0WfBkv4DM>  
+- **Video:** <https://youtu.be/noSqIsPSsgo>  
 - **Format:** Zoom (45 mins talk, 15 min open Q&A)
 - **Date:** April 17, 2026
 - 30 registrations on Luma: https://luma.com/pc43te6r
