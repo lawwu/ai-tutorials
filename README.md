@@ -8,6 +8,8 @@ Supporting materials for Lawrence Wu's AI tutorial video series.
 | 2 | 2026-04-01 | [Coding Agents Deep Dive](https://www.youtube.com/watch?v=qWjw3cwJWlU) | Technical | Filmed independently — deeper dive into coding agents like Claude Code and how agent frameworks have evolved |
 | 3 | 2026-04-13 | [AI Use Cases: Claude Cowork & Claude Code](https://www.youtube.com/watch?v=zh5twqQLsB4) | Less technical | In-person tutorial focused on practical use cases with Claude Cowork and Claude Code |
 | 4 | 2026-04-17 | [The New Knowledge Worker: Thriving in the Age of AI Agents](https://youtu.be/noSqIsPSsgo) | General | Zoom talk covering the Agentic AI Stack, harness engineering mindset, memory, skills, and the new knowledge worker |
+| 5 | 2026-06-22 | No Video | General | Tutorial for friend, Warren |
+
 
 ## Folders
 
