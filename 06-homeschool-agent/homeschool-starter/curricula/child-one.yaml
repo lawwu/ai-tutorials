@@ -1,0 +1,57 @@
+# One file per child. This is the source of truth for what they're learning
+# and — most importantly — WHERE THEY CURRENTLY ARE.
+#
+# Rename this file to your child's name (e.g. sarah.yaml) and update the
+# reference in family.yaml.
+#
+# The `position` fields are what make pacing reports possible. Keep them
+# current; everything else can drift a little without much harm.
+
+child: CHILD_ONE
+
+subjects:
+  math:
+    curriculum: EXAMPLE — Singapore Dimensions Math
+    sequence: [4A, 4B]
+    position: 4A chapter 1 lesson 3     # = completed through here
+    # Free text is fine. "4A ch 2 lesson 1, halfway" is more useful than a
+    # tidy format that's wrong.
+
+  reading:
+    curriculum: EXAMPLE — All About Reading Level 4
+    position: lesson 12
+    reading_list: curricula/child-one-reading-list.md
+    reading_log: curricula/child-one-reading-log.md
+
+  literature:
+    curriculum: null
+    position: null
+
+  writing:
+    curriculum: null
+    approach: >
+      Notes on HOW to teach this child this subject — what's hard for them,
+      what you've decided to do about it, and when you decided. These notes
+      are the reason the assistant's suggestions fit your child instead of
+      a generic fourth grader.
+    position: null
+
+  grammar:
+    curriculum: null
+    position: null
+
+  history:
+    curriculum: null
+    position: null
+
+  science:
+    curriculum: null
+    position: null
+
+  bible:
+    curriculum: null
+    position: null
+
+# Add or delete subjects freely. An empty subject with `null` is a note to
+# yourself that you haven't decided yet — which is different from, and more
+# useful than, the subject not being here at all.

@@ -1,0 +1,52 @@
+# Who we are and when we school.
+# The assistant reads this to answer "how many weeks are left?" and
+# "what does a Tuesday look like?" — keep the dates honest and it will
+# do the arithmetic for you.
+
+family:
+  parents: [PARENT_ONE, PARENT_TWO]
+  # Delete these two if you homeschool independently.
+  charter: null          # e.g. "Cabrillo Point Academy (funds vendors)"
+  vendors: []            # e.g. ["Art co-op (Wednesdays)", "Piano (Thu 4pm)"]
+
+children:
+  - name: CHILD_ONE
+    born: 2016-01-01
+    grade: 4th
+    file: curricula/child-one.yaml
+
+  - name: CHILD_TWO
+    born: 2019-01-01
+    grade: 1st
+    file: curricula/child-two.yaml
+
+school_year:
+  label: "2026-2027"
+  start: 2026-08-13
+  end: 2027-05-28
+  total_instructional_days: 175
+
+  holidays:
+    - { name: Labor Day,          start: 2026-09-07 }
+    - { name: Thanksgiving Break, start: 2026-11-23, end: 2026-11-27 }
+    - { name: Winter Break,       start: 2026-12-21, end: 2027-01-01 }
+    - { name: Spring Break,       start: 2027-03-29, end: 2027-04-02 }
+
+  # If your charter or umbrella school has reporting periods with work-sample
+  # or attendance obligations, list them here. Delete if not applicable.
+  reporting_periods: []
+    # - { n: 1, start: 2026-08-13, end: 2026-09-11, days: 21, work_samples: 1 }
+
+weekly_rhythm:
+  # What a normal week looks like. The assistant plans against this, so it
+  # should describe the week you actually have, not the ideal one.
+  monday:    [math, history, reading]
+  tuesday:   [math, science, reading]
+  wednesday: [co-op — light home day]
+  thursday:  [math, grammar, reading]
+  friday:    [math, science, catch-up]
+
+  notes: >
+    Mornings are the teaching block; afternoons are independent work and
+    reading. One parent is teaching all children simultaneously — plans
+    have to be realistic about that.

@@ -1,0 +1,826 @@
+<title>Run Your Homeschool Out of a Repo</title>
+<style>
+  :root {
+    --paper:      #F4F7F2;
+    --card:       #FFFFFF;
+    --ink:        #1A211C;
+    --ink-soft:   #55605A;
+    --ink-faint:  #7C877F;
+    --rule:       #D6DED2;
+    --rule-soft:  #E6EBE3;
+    --accent:     #2C6B4F;
+    --accent-dim: #EAF2EC;
+    --marker:     #F3C75B;
+    --marker-ink: #1A211C;
+    --alarm:      #A8412A;
+    --alarm-bg:   #FBEEE9;
+    --code-bg:    #EEF2EC;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #12160F;
+      --card:       #1A1F19;
+      --ink:        #E6EBE1;
+      --ink-soft:   #A9B3A6;
+      --ink-faint:  #7E8A7C;
+      --rule:       #2E362C;
+      --rule-soft:  #242B22;
+      --accent:     #7FC49B;
+      --accent-dim: #1E2A22;
+      --marker:     #F3C75B;
+      --marker-ink: #12160F;
+      --alarm:      #E89479;
+      --alarm-bg:   #2A1A15;
+      --code-bg:    #232A21;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #12160F;
+    --card:       #1A1F19;
+    --ink:        #E6EBE1;
+    --ink-soft:   #A9B3A6;
+    --ink-faint:  #7E8A7C;
+    --rule:       #2E362C;
+    --rule-soft:  #242B22;
+    --accent:     #7FC49B;
+    --accent-dim: #1E2A22;
+    --marker:     #F3C75B;
+    --marker-ink: #12160F;
+    --alarm:      #E89479;
+    --alarm-bg:   #2A1A15;
+    --code-bg:    #232A21;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 24px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--measure); margin: 0 auto; }
+  .wide { max-width: 82ch; margin: 0 auto; }
+
+  /* ---------- masthead ---------- */
+
+  header.masthead {
+    max-width: 82ch;
+    margin: 0 auto;
+    padding: 72px 0 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(38px, 7vw, 62px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-family: var(--serif);
+    font-size: clamp(19px, 2.4vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    max-width: 58ch;
+  }
+  .masthead-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    font-size: 13px;
+    color: var(--ink-faint);
+    padding-bottom: 4px;
+  }
+  .masthead-meta strong { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---------- typography ---------- */
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(27px, 4vw, 34px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 650;
+    font-size: 17px;
+    line-height: 1.4;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 12px;
+  }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  strong { font-weight: 650; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  li::marker { color: var(--ink-faint); }
+
+  .mark {
+    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%);
+    color: var(--ink);
+    padding: 0 1px;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  /* ---------- section rhythm ---------- */
+
+  section { padding-top: 56px; }
+  .section-label {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 650;
+    color: var(--ink-faint);
+    margin: 0 0 28px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ---------- numbered steps (a real sequence) ---------- */
+
+  .step { display: grid; grid-template-columns: 52px 1fr; gap: 0 20px; padding-top: 48px; }
+  .step-num {
+    font-family: var(--serif);
+    font-size: 40px;
+    line-height: 1;
+    color: var(--accent);
+    padding-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .step-body > *:last-child { margin-bottom: 0; }
+  .step-head { margin-bottom: 14px; }
+  .step-head h2 { margin-bottom: 6px; }
+  .step-time { font-size: 13px; color: var(--ink-faint); }
+
+  @media (max-width: 620px) {
+    .step { grid-template-columns: 1fr; gap: 0; }
+    .step-num { font-size: 28px; margin-bottom: 4px; }
+  }
+
+  /* ---------- cards & boxes ---------- */
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 22px 24px;
+    margin: 0 0 20px;
+  }
+  .card > *:last-child { margin-bottom: 0; }
+
+  .prompt {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 16px 18px;
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .prompt-note {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: -4px 0 22px;
+    padding-left: 2px;
+  }
+
+  .cmd {
+    background: var(--code-bg);
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    padding: 12px 14px;
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .alarm {
+    background: var(--alarm-bg);
+    border: 1px solid var(--alarm);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin: 0 0 20px;
+  }
+  .alarm h3 { color: var(--alarm); }
+  .alarm > *:last-child { margin-bottom: 0; }
+
+  .aside {
+    border-left: 2px solid var(--rule);
+    padding: 2px 0 2px 18px;
+    margin: 0 0 20px;
+    font-size: 15.5px;
+    color: var(--ink-soft);
+  }
+  .aside > *:last-child { margin-bottom: 0; }
+
+  /* ---------- figures ---------- */
+
+  figure { margin: 32px 0; }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+  .fig-scroll { overflow-x: auto; }
+  .svg-fill-card { fill: var(--card); }
+  .svg-stroke-rule { stroke: var(--rule); }
+  .svg-fill-ink { fill: var(--ink); }
+  .svg-fill-soft { fill: var(--ink-soft); }
+  .svg-fill-faint { fill: var(--ink-faint); }
+  .svg-fill-accent { fill: var(--accent); }
+  .svg-stroke-accent { stroke: var(--accent); }
+  .svg-fill-accentdim { fill: var(--accent-dim); }
+  .svg-label { font-family: var(--sans); font-size: 13px; font-weight: 600; }
+  .svg-sub { font-family: var(--sans); font-size: 11.5px; }
+  .svg-tag { font-family: var(--mono); font-size: 11px; }
+
+  /* ---------- prompt library ---------- */
+
+  .lib-group { padding-top: 36px; }
+  .lib-group h3 { font-size: 19px; font-family: var(--serif); font-weight: 400; letter-spacing: -0.005em; }
+  .lib-intro { font-size: 15.5px; color: var(--ink-soft); margin-bottom: 18px; }
+
+  /* ---------- tables ---------- */
+
+  .table-scroll { overflow-x: auto; margin: 0 0 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); font-weight: 650; }
+  td code { white-space: nowrap; }
+
+  /* ---------- glossary ---------- */
+
+  dl.glossary { margin: 0; }
+  dl.glossary dt {
+    font-weight: 650;
+    font-size: 15px;
+    margin-top: 18px;
+    color: var(--ink);
+  }
+  dl.glossary dd {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 15.5px;
+  }
+
+  details {
+    border-bottom: 1px solid var(--rule-soft);
+    padding: 14px 0;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    list-style: none;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before {
+    content: "+";
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 400;
+  }
+  details[open] summary::before { content: "\2013"; }
+  details .answer { padding: 12px 0 2px 24px; font-size: 15.5px; color: var(--ink-soft); }
+  details .answer > *:last-child { margin-bottom: 0; }
+
+  footer {
+    max-width: 82ch;
+    margin: 80px auto 0;
+    padding-top: 28px;
+    border-top: 2px solid var(--ink);
+    font-size: 14px;
+    color: var(--ink-faint);
+  }
+</style>
+
+<header class="masthead">
+  <p class="eyebrow">Workshop handout &middot; for homeschooling parents</p>
+  <h1>Run your homeschool out of a repo</h1>
+  <p class="standfirst">Your plans, reading logs, curriculum notes, and to&#8209;dos live in plain files. Claude reads and writes them for you &mdash; from your laptop at the kitchen table, or from your phone in the pickup line.</p>
+  <div class="masthead-meta">
+    <span><strong>Setup time</strong> about 90 minutes, once</span>
+    <span><strong>Prior experience</strong> none assumed</span>
+    <span><strong>Cost</strong> a Claude subscription; GitHub is free</span>
+  </div>
+</header>
+
+<div class="wide">
+
+<section>
+  <p class="section-label">What you're building</p>
+  <div class="wrap">
+    <p>Most homeschool records live in a dozen places at once: a paper planner, a shared note, three browser tabs, and your memory. This setup puts all of it in <strong>one folder of plain files</strong> &mdash; and gives you an assistant who can read every one of them before it answers you.</p>
+    <p>There are only three pieces, and you already understand two of them.</p>
+  </div>
+
+  <figure class="fig-scroll">
+    <svg viewBox="0 0 820 300" role="img" aria-label="Diagram: your laptop and your phone both talk to one shared copy of your homeschool folder stored on GitHub.">
+      <!-- laptop -->
+      <rect x="8" y="70" width="216" height="160" rx="5" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+      <text x="28" y="102" class="svg-label svg-fill-ink">Your laptop</text>
+      <text x="28" y="126" class="svg-sub svg-fill-soft">The Claude app, Code tab.</text>
+      <text x="28" y="145" class="svg-sub svg-fill-soft">Your real folder, on your</text>
+      <text x="28" y="163" class="svg-sub svg-fill-soft">own hard drive.</text>
+      <rect x="28" y="182" width="132" height="24" rx="3" class="svg-fill-accentdim"/>
+      <text x="38" y="199" class="svg-tag svg-fill-accent">~/homeschool</text>
+
+      <!-- github -->
+      <rect x="292" y="46" width="236" height="208" rx="5" class="svg-fill-card svg-stroke-accent" stroke-width="2"/>
+      <text x="312" y="80" class="svg-label svg-fill-ink">GitHub</text>
+      <text x="312" y="104" class="svg-sub svg-fill-soft">One private, shared copy of</text>
+      <text x="312" y="122" class="svg-sub svg-fill-soft">the same folder, in the cloud.</text>
+      <text x="312" y="140" class="svg-sub svg-fill-soft">Keeps every past version, so</text>
+      <text x="312" y="158" class="svg-sub svg-fill-soft">nothing is ever really lost.</text>
+      <rect x="312" y="178" width="196" height="1" class="svg-fill-faint" opacity="0.4"/>
+      <text x="312" y="202" class="svg-tag svg-fill-faint">plans/  journal/  curricula/</text>
+      <text x="312" y="222" class="svg-tag svg-fill-faint">books/  TODO.md  CLAUDE.md</text>
+
+      <!-- phone -->
+      <rect x="596" y="70" width="216" height="160" rx="5" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+      <text x="616" y="102" class="svg-label svg-fill-ink">Your phone or browser</text>
+      <text x="616" y="126" class="svg-sub svg-fill-soft">claude.ai/code. Claude works</text>
+      <text x="616" y="145" class="svg-sub svg-fill-soft">on the GitHub copy while</text>
+      <text x="616" y="163" class="svg-sub svg-fill-soft">your laptop is closed.</text>
+      <rect x="616" y="182" width="112" height="24" rx="3" class="svg-fill-accentdim"/>
+      <text x="626" y="199" class="svg-tag svg-fill-accent">no setup</text>
+
+      <!-- arrows -->
+      <path d="M232 132 L284 132" class="svg-stroke-accent" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+      <path d="M284 172 L232 172" class="svg-stroke-accent" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+      <path d="M588 132 L536 132" class="svg-stroke-accent" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+      <path d="M536 172 L588 172" class="svg-stroke-accent" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+      <text x="236" y="124" class="svg-tag svg-fill-faint">push</text>
+      <text x="236" y="192" class="svg-tag svg-fill-faint">pull</text>
+      <text x="543" y="124" class="svg-tag svg-fill-faint">pull</text>
+      <text x="543" y="192" class="svg-tag svg-fill-faint">push</text>
+
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" class="svg-fill-accent"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption><strong>Push</strong> means &ldquo;send my changes up.&rdquo; <strong>Pull</strong> means &ldquo;bring the latest down.&rdquo; That's the whole vocabulary you need to start.</figcaption>
+  </figure>
+
+  <div class="wrap">
+    <div class="card">
+      <h3>The three pieces</h3>
+      <p><strong>The folder</strong> is your binder. Files ending in <code>.md</code> are just typed notes; files ending in <code>.yaml</code> are simple lists. You can open either one in any text editor. Nothing is locked inside an app.</p>
+      <p><strong>Claude Code</strong> is the assistant with a key to that binder. Unlike a chat window, it can open your actual files, change them, and file new ones where they belong.</p>
+      <p style="margin-bottom:0"><strong>GitHub</strong> is the shared filing cabinet. It holds one copy both parents can reach, keeps a dated history of every change, and is what makes the phone work at all.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">Setup &mdash; six steps, in order</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Get the two accounts</h2>
+        <p class="step-time">10 minutes &middot; do this before the workshop if you can</p>
+      </div>
+      <p><strong>A paid Claude plan.</strong> Go to <a href="https://claude.com/pricing">claude.com/pricing</a> and subscribe to <strong>Pro</strong> or <strong>Max</strong>. This is the one part that costs money, and it is required &mdash; <span class="mark">the free Claude plan does not include Claude Code</span>, which is the piece that can touch your files.</p>
+      <p><strong>A GitHub account.</strong> Go to <a href="https://github.com/signup">github.com/signup</a>. Free. Pick a username you don't mind other people seeing, use an email you actually check, and turn on two&#8209;factor authentication when it offers. Write the password down somewhere real.</p>
+      <div class="aside">
+        <p>GitHub is a website programmers use to store folders of files. Nothing about it assumes you write code &mdash; you're using it as a filing cabinet that never forgets. Your repository will be <strong>private</strong>, visible only to you and anyone you invite.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Install Claude on your computer</h2>
+        <p class="step-time">10 minutes &middot; no terminal, no command line</p>
+      </div>
+      <p>Download the desktop app from <a href="https://claude.ai/download">claude.ai/download</a> &mdash; there's a Mac version and a Windows version. Install it the way you'd install anything else, open it, and sign in with the Claude account from step 1.</p>
+      <p>At the top of the window you'll see three tabs: <strong>Chat</strong>, <strong>Cowork</strong>, and <strong>Code</strong>. You want <strong>Code</strong>. That's Claude Code with buttons instead of typing commands.</p>
+      <p>On Windows, also install <a href="https://git-scm.com/downloads/win">Git for Windows</a> first &mdash; local sessions need it. Macs already have what they need.</p>
+      <div class="aside">
+        <p><strong>Why the app and not the website?</strong> The desktop app can open the folder on your own computer. The website version (step 5) works on the GitHub copy instead. You'll use both, for different moments.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Make the folder, and put it on GitHub</h2>
+        <p class="step-time">15 minutes &middot; Claude does the technical part</p>
+      </div>
+      <p>Create an empty folder on your computer called <code>homeschool</code>. Documents is a fine home for it. If you already have homeschool files scattered around, don't move them yet &mdash; start empty, and add them once the shape is clear.</p>
+      <p>In the Claude app, on the <strong>Code</strong> tab, choose <strong>Local</strong>, click <strong>Select folder</strong>, and pick the folder you just made. Then paste this in and press enter:</p>
+      <div class="prompt">Set this folder up as a git repository, create a new PRIVATE repository
+on my GitHub account called "homeschool", and push this folder to it.
+I've never used git or GitHub before &mdash; walk me through anything you
+need me to click, one step at a time.</div>
+      <p class="prompt-note">Claude will ask permission before it runs commands &mdash; that's normal, and you should say yes to these. Partway through it will send you to a browser window to sign in to GitHub and enter a short code. That's GitHub confirming it's really you.</p>
+      <p><strong>If it gets stuck:</strong> go to <a href="https://github.com/new">github.com/new</a> yourself, name the repository <code>homeschool</code>, select <strong>Private</strong>, click Create, then come back and tell Claude &ldquo;I made the empty repo at github.com/&lt;your&#8209;username&gt;/homeschool &mdash; connect this folder to it and push.&rdquo;</p>
+      <div class="alarm">
+        <h3>Private, not public &mdash; check this twice</h3>
+        <p style="margin-bottom:0">This folder will hold your children's names, ages, and daily schedules. Open your repository page on github.com and confirm the word <strong>Private</strong> appears next to its name. If it says Public, tell Claude to make it private, or change it under Settings &rarr; General &rarr; Change visibility.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Write the instructions file</h2>
+        <p class="step-time">30 minutes &middot; the step that decides whether this works</p>
+      </div>
+      <p>A file named <code>CLAUDE.md</code> at the top of your folder is read at the start of every single conversation, on every device. It's where you write down the things you'd otherwise re-explain every time: who your children are, what you believe about education, where new information goes, and what must never be written down.</p>
+      <p><span class="mark">This is the difference between a clever chatbot and an assistant that knows your family.</span> Don't skip it, and don't write it alone &mdash; talk it out with Claude:</p>
+      <div class="prompt">I want to write a CLAUDE.md for this folder so you know how to help with
+our homeschool. Interview me &mdash; ask me one question at a time, and write
+the file as we go. Cover: my kids and their grades, our educational
+philosophy, the curricula we use, our weekly rhythm, where different kinds
+of information should get filed, and what should never be written into
+these files.</div>
+      <p class="prompt-note">Expect twenty minutes of back and forth. It's worth it. You can revise it forever &mdash; it's just a text file.</p>
+      <p>Six things every homeschool <code>CLAUDE.md</code> should end up containing:</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Section</th><th>What goes in it</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Who you're talking to</strong></td><td>&ldquo;Optimize for a busy homeschooling mom, not a programmer. Be warm, concise, concrete.&rdquo;</td></tr>
+            <tr><td><strong>The family</strong></td><td>Each child's name, birthdate, grade level. Your charter or umbrella school, if you use one.</td></tr>
+            <tr><td><strong>Your philosophy</strong></td><td>Written as rules Claude must honor. &ldquo;Mastery over speed &mdash; never recommend acceleration at the cost of understanding.&rdquo;</td></tr>
+            <tr><td><strong>Where things get filed</strong></td><td>A short routing list. Progress in a curriculum &rarr; the child's curriculum file. Something that happened today &rarr; the journal. A decision or deadline &rarr; TODO.</td></tr>
+            <tr><td><strong>Never invent facts</strong></td><td>Every item in a plan must trace back to something you actually said or a real file. When something's missing, Claude asks &mdash; it does not fill the gap with a plausible guess.</td></tr>
+            <tr><td><strong>Never write down</strong></td><td>The list in step 6. Copy it as&#8209;is.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aside">
+        <p>Keep the routing list <strong>high&#8209;level</strong>. Give the shape and the rules; let Claude search the folder to find specific files. A CLAUDE.md that catalogs every file in detail goes stale within a month and starts giving wrong directions.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Connect the phone and the browser</h2>
+        <p class="step-time">10 minutes &middot; this is the part that changes your week</p>
+      </div>
+      <p>Go to <a href="https://claude.ai/code">claude.ai/code</a> and sign in. It'll prompt you to connect GitHub &mdash; follow it, and authorize the Claude GitHub App for your account. When it offers to create a <strong>Default</strong> environment, accept the defaults.</p>
+      <p>Then install the Claude app on your phone (<a href="https://apps.apple.com/us/app/claude-by-anthropic/id6473753684">iOS</a> / <a href="https://play.google.com/store/apps/details?id=com.anthropic.claude">Android</a>) and open its <strong>Code</strong> tab. Same account, same repositories.</p>
+      <p>Now, from a browser or a phone: pick <code>homeschool</code> in the repository selector, type what you want, and send. Claude spins up a machine in the cloud, works on a copy of your folder, and writes the results back. Your laptop can be shut in a bag.</p>
+
+      <figure class="fig-scroll">
+        <svg viewBox="0 0 820 148" role="img" aria-label="Diagram: a phone request becomes a branch, which you review as a diff, turn into a pull request, and merge into main.">
+          <g>
+            <rect x="4" y="34" width="140" height="62" rx="4" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+            <text x="18" y="60" class="svg-label svg-fill-ink">You ask</text>
+            <text x="18" y="80" class="svg-sub svg-fill-soft">from the phone</text>
+
+            <rect x="176" y="34" width="140" height="62" rx="4" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+            <text x="190" y="60" class="svg-label svg-fill-ink">Claude works</text>
+            <text x="190" y="80" class="svg-sub svg-fill-soft">on a branch</text>
+
+            <rect x="348" y="34" width="140" height="62" rx="4" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+            <text x="362" y="60" class="svg-label svg-fill-ink">You review</text>
+            <text x="362" y="80" class="svg-sub svg-fill-soft">the diff, in color</text>
+
+            <rect x="520" y="34" width="140" height="62" rx="4" class="svg-fill-card svg-stroke-rule" stroke-width="1.5"/>
+            <text x="534" y="60" class="svg-label svg-fill-ink">Create PR</text>
+            <text x="534" y="80" class="svg-sub svg-fill-soft">then merge it</text>
+
+            <rect x="692" y="34" width="124" height="62" rx="4" class="svg-fill-card svg-stroke-accent" stroke-width="2"/>
+            <text x="706" y="60" class="svg-label svg-fill-accent">It's official</text>
+            <text x="706" y="80" class="svg-sub svg-fill-soft">main is updated</text>
+          </g>
+          <g class="svg-stroke-accent" stroke-width="1.5" fill="none">
+            <path d="M150 65 L170 65" marker-end="url(#ar2)"/>
+            <path d="M322 65 L342 65" marker-end="url(#ar2)"/>
+            <path d="M494 65 L514 65" marker-end="url(#ar2)"/>
+            <path d="M666 65 L686 65" marker-end="url(#ar2)"/>
+          </g>
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" class="svg-fill-accent"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>A <strong>branch</strong> is a draft copy. A <strong>diff</strong> shows exactly what changed, added lines in green and removed in red. A <strong>pull request</strong> (PR) is the moment you say &ldquo;yes, make the draft real.&rdquo; You'll click a button called <strong>Create PR</strong> and then <strong>Merge</strong>.</figcaption>
+      </figure>
+
+      <p>Try it now, from your phone, so you've done it once before you need it:</p>
+      <div class="prompt">Add a line to TODO.md: order the science supplies for next week.</div>
+      <p class="prompt-note">Then open the diff, create the PR, and merge it. Thirty seconds. That's the loop for everything.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <div class="step-head">
+        <h2>Learn the two habits</h2>
+        <p class="step-time">Five minutes &mdash; then it's muscle memory</p>
+      </div>
+      <p>Two parents and three devices all editing the same folder works fine, as long as everyone starts and ends the same way. Put these two lines in your <code>CLAUDE.md</code> and Claude will do them for you:</p>
+      <div class="card">
+        <p><strong>Start of every session:</strong> &ldquo;Start every session with <code>git pull</code>.&rdquo; This brings down whatever your spouse changed from their phone last night. Skipping it is the single most common source of confusion.</p>
+        <p style="margin-bottom:0"><strong>End of every session:</strong> &ldquo;End every session by committing and pushing with a short summary of what changed.&rdquo; Anything not pushed exists only on that one device.</p>
+      </div>
+      <p>If a push is ever rejected, it means someone else pushed first. Tell Claude &ldquo;pull with rebase and push again&rdquo; &mdash; it knows what to do, and this is exactly the situation version control was built for.</p>
+      <div class="aside">
+        <p><strong>Nothing you do here can lose data.</strong> Every version of every file is kept. If a plan gets mangled, ask Claude to show you what it looked like last Tuesday and put it back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">What to actually ask it</p>
+  <div class="wrap">
+    <p>Setup is the easy part; knowing what to ask is the real skill. The prompts below come from a year of real use, rewritten so you can paste them as they are. Anything in <code>[brackets]</code> is yours to fill in. Notice the pattern more than the wording &mdash; <span class="mark">you're talking to it the way you'd talk to a capable assistant who has read all your files.</span></p>
+  </div>
+
+  <div class="wrap">
+    <div class="lib-group">
+      <h3>Capture &mdash; get things out of your head</h3>
+      <p class="lib-intro">The highest&#8209;value habit. Talk or paste; never re&#8209;type anything into a form. Use your phone's dictation button and don't organize as you go &mdash; that's the assistant's job.</p>
+      <div class="prompt">log: read aloud this morning, [child] asked a question I couldn't answer
+and I still owe her one. [Older child] finished chapter 2 lesson 3 in math
+and it was a fight. [Younger child] did four pages and lost interest.</div>
+      <p class="prompt-note">One messy dump, three destinations: the journal entry, the math position in the curriculum file, and the unanswered question on your to&#8209;do list. You never open those files yourself.</p>
+      <div class="prompt">These are the books [child] finished this month, plus her own summaries.
+Record them in her reading log and keep her wording exactly as written &mdash;
+don't clean it up.</div>
+      <div class="prompt">Capture this feedback from [child]'s [writing teacher / evaluator /
+tutor]: [paste the whole email]</div>
+    </div>
+
+    <div class="lib-group">
+      <h3>Plan &mdash; the weekly work</h3>
+      <p class="lib-intro">Once your curriculum files and weekly rhythm are written down, these get shorter every week. Eventually they're two words.</p>
+      <div class="prompt">plan this week</div>
+      <div class="prompt">pacing report &mdash; are we on track to finish [subject] by [month]?</div>
+      <p class="prompt-note">Ask it to write a small script for the arithmetic and run it, rather than doing the math in its head. Then it's the same answer every time, and you can check the script.</p>
+      <div class="prompt">What do I need to do before school starts on [date]?</div>
+      <div class="prompt">Break the [state] [grade] [science / social studies] standards into a
+weekly quota across our remaining weeks, so nothing piles up before
+[the deadline].</div>
+    </div>
+
+    <div class="lib-group">
+      <h3>Decide &mdash; curriculum and resources</h3>
+      <p class="lib-intro">Claude can read a publisher's page and weigh it against what your children have already done and what's already on your shelves.</p>
+      <div class="prompt">I'm choosing [4-6] books from this [subject] package for my [age]-year-old:
+[link]. Help me decide, given what she's already read and what we own.</div>
+      <div class="prompt">How does [program] actually work? I signed up for an account and that's
+all I know. Schedule the lessons for each of my kids by grade level, and
+tell me what supplies I need a week ahead of each one.</div>
+      <div class="prompt">I want a daily [reading / memory work / practice] plan for each child at
+their own level. Keep them on the same passage on the same day so I'm
+teaching one thing, not three &mdash; and sync it with the plan my spouse and
+I are already on. We're on day [N].</div>
+      <div class="prompt">What would [that paid program] give me on top of what we already have?</div>
+      <p class="prompt-note">That last one is the most underrated prompt here. It has your actual curriculum files, so it can tell you when something is a genuine gap and when you'd be paying for what you already own.</p>
+    </div>
+
+    <div class="lib-group">
+      <h3>Make &mdash; things you can hold</h3>
+      <p class="lib-intro">Claude writes files, and a printable page is just a file. This is where families get the biggest surprise &mdash; so it's worth walking one all the way through. Here's how a single state standard became a deck of cards on the kitchen table.</p>
+      <p><strong>Start with the requirement, not the craft.</strong></p>
+      <div class="prompt">One of my [grade]'s social studies standards asks her to learn how people
+from history made a difference in others' lives. Design a "hero of the
+week" habit for the whole year &mdash; one short biography a week, about ten
+minutes. Use the biographies we already own where you can, and fix the
+rotation week by week so there's no ambiguity. I'm teaching more than one
+child at once and I can't be deciding this on a Friday morning.</div>
+      <p class="prompt-note">Because your bookshelves are already in the folder, it builds the rotation out of what you own and names the few you'd need to find. That last sentence is doing real work &mdash; it's the difference between a fixed table and a flexible framework you'll have to think about every week.</p>
+      <p><strong>Then ask for the physical thing.</strong></p>
+      <div class="prompt">Now build the actual cards. One per person: their name, their portrait,
+and four prompts &mdash; who they were, what was hard, what they did, and what
+character it took. Two per landscape page with ruled lines, printed
+single-sided so I can cut down the middle.
+
+Write it as a script that generates the PDF, not a one-off file, so I can
+re-run it when the list changes.</div>
+      <p class="prompt-note">Asking for a <em>script</em> instead of a document is the move worth stealing. Six weeks later you swap two names, re-run it, and get a new deck &mdash; instead of redoing the layout by hand. Same trick works for copywork pages, flashcards, and weekly checklists.</p>
+      <p><strong>Then close the loop on the paperwork.</strong></p>
+      <div class="prompt">Which of this year's cards should go in her portfolio as work samples, and
+which reporting period does each one cover?</div>
+      <p class="prompt-note">A standard, a weekly habit, a thing she can hold, and the records requirement discharged &mdash; one thread, and the child experiences it as her favorite ten minutes of the week.</p>
+      <p>Two more in the same vein:</p>
+      <div class="prompt">Turn these plans into a printout I can hand to each child.</div>
+      <div class="prompt">Give me 3 things each child will learn this year, grouped by subject, and
+why each one matters in the real world &mdash; I'm giving them a short talk
+to kick off the school year.</div>
+    </div>
+
+    <div class="lib-group">
+      <h3>The physical world</h3>
+      <p class="lib-intro">Point your phone camera at your actual house. This one is worth demonstrating live &mdash; it's the moment the whole idea lands.</p>
+      <div class="prompt">I photographed every bookshelf in the house &mdash; the photos are in this
+folder. List every title, then group them by which school year they'd be
+useful for, which to pull for this year's bins, and which to give away.
+Include where each one physically is, so I know which shelf to pull from.</div>
+      <p class="prompt-note">Six months later you can ask &ldquo;which shelf is <em>[that title]</em> on?&rdquo; &mdash; and get an answer, because the location went into the file alongside the title.</p>
+    </div>
+
+    <div class="lib-group">
+      <h3>Keeping the folder honest</h3>
+      <p class="lib-intro">Run these every month or two. They catch the drift that builds up when two people file things from two phones.</p>
+      <div class="prompt">Review this whole folder and tell me if there are any contradictions.
+Then tell me how you'd improve the structure.</div>
+      <div class="prompt">How do you know [that thing] is due on the 15th?</div>
+      <p class="prompt-note">Ask this whenever something looks off. It should cite the file the fact came from. If it can't, the item was invented and should be deleted &mdash; which is exactly why the &ldquo;never invent facts&rdquo; rule belongs in your CLAUDE.md.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">Guardrails</p>
+  <div class="wrap">
+    <p>Your repository is private, but it does sync through GitHub and through an AI service. Names, birthdates, grades, and schedules are reasonable to keep there. Some things are not, and the list belongs in your <code>CLAUDE.md</code> so Claude enforces it even when you forget.</p>
+
+    <div class="alarm">
+      <h3>Never write these into your files</h3>
+      <ul style="margin-bottom:12px">
+        <li>Your home address, or any government or school identity document</li>
+        <li>Social Security numbers, or your state's student ID numbers</li>
+        <li>Medical or health information about anyone in the family</li>
+        <li>Photos with a child's face in frame &mdash; photos of <em>schoolwork</em> are fine</li>
+        <li>Passwords, keys, or login tokens of any kind</li>
+        <li>Financial account numbers</li>
+      </ul>
+      <p style="margin-bottom:0">If one of these gets committed by mistake, deleting it in a new version isn't enough &mdash; the old version is still in the history. Tell Claude right away and ask it to rewrite the history.</p>
+    </div>
+
+    <p><strong>Keep names off the open web.</strong> Add this line too: &ldquo;Never put the children's names into web searches or any external service. Research in generic terms &mdash; &lsquo;grade 4 narration prompts,&rsquo; not a child's name.&rdquo; Names inside your private folder are fine; names leaving it are not.</p>
+
+    <p><strong>Journals are append&#8209;only.</strong> &ldquo;Never overwrite journal history; append only.&rdquo; What happened on a Tuesday in October shouldn't be quietly rewritten in March.</p>
+
+    <details>
+      <summary>Optional, later: have GitHub check your files once a week</summary>
+      <div class="answer">
+        <p>Once you're comfortable, GitHub can run Claude on a schedule against your folder &mdash; scanning the week's changes for anything on the list above, checking that your files still parse, and opening an issue only if something's wrong. It's about thirty lines of configuration, and Claude will write it for you:</p>
+        <div class="prompt">Set up a GitHub Actions workflow that runs every Monday afternoon, reviews
+the last week of changes against the "never write these" list in CLAUDE.md,
+and opens a GitHub issue only if it finds something. Read-only &mdash; it must
+never change or commit anything. Walk me through adding the secret it needs.</div>
+        <p style="margin-bottom:0">One detail worth insisting on: tell it to report findings by <em>file and line number only</em>, never quoting the sensitive value &mdash; otherwise the secret ends up in the log.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">When something goes wrong</p>
+  <div class="wrap">
+    <details>
+      <summary>Claude keeps asking permission for everything</summary>
+      <div class="answer"><p>That's the default, and it's the right setting while you're learning. In the desktop app you can switch the permission mode to <strong>Accept edits</strong> once you trust it with your own folder. Read the first several changes closely either way.</p></div>
+    </details>
+    <details>
+      <summary>My spouse's changes aren't showing up on my laptop</summary>
+      <div class="answer"><p>Say &ldquo;pull the latest.&rdquo; Their work is on GitHub; your laptop hasn't fetched it yet. This is why the start&#8209;of&#8209;session habit matters.</p></div>
+    </details>
+    <details>
+      <summary>It says my push was rejected</summary>
+      <div class="answer"><p>Someone pushed before you. Say &ldquo;pull with rebase, then push.&rdquo; Nothing is lost &mdash; this is version control doing its job.</p></div>
+    </details>
+    <details>
+      <summary>The plan it made includes something we never do</summary>
+      <div class="answer"><p>Ask &ldquo;where did that come from?&rdquo; It should cite a file or a conversation. If it can't, tell it to delete the item and add a line to your CLAUDE.md forbidding invented details. This happens most often when a folder is young and Claude fills gaps with generic homeschool patterns.</p></div>
+    </details>
+    <details>
+      <summary>No repositories appear on claude.ai/code</summary>
+      <div class="answer"><p>The connected GitHub account can't see the repository. Sign in to github.com as the same account you connected, and confirm the repository is there. Private repositories work fine; they just need the same authorization.</p></div>
+    </details>
+    <details>
+      <summary>I'm afraid I'll break something</summary>
+      <div class="answer"><p>You can't, permanently. Every version of every file is stored. The worst realistic outcome is a messy afternoon that Claude can undo by restoring an earlier version. Ask it to.</p></div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">Plain English</p>
+  <div class="wrap">
+    <dl class="glossary">
+      <dt>Repository (repo)</dt>
+      <dd>Your folder, plus its complete history. &ldquo;The homeschool repo&rdquo; just means &ldquo;that folder.&rdquo;</dd>
+      <dt>Git</dt>
+      <dd>The system underneath that records every version. You will never need to use it directly.</dd>
+      <dt>Commit</dt>
+      <dd>A saved snapshot with a note attached: <em>&ldquo;added week 3 plans.&rdquo;</em></dd>
+      <dt>Push / pull</dt>
+      <dd>Send your changes up to GitHub / bring the latest down to your device.</dd>
+      <dt>Branch</dt>
+      <dd>A draft copy you can change without touching the real thing. Cloud sessions always work on one.</dd>
+      <dt>main</dt>
+      <dd>The official version &mdash; what you'd print from.</dd>
+      <dt>Diff</dt>
+      <dd>A side&#8209;by&#8209;side of exactly what changed. Green is added, red is removed.</dd>
+      <dt>Pull request (PR)</dt>
+      <dd>&ldquo;Please fold this draft into the real thing.&rdquo; You review the diff, then click Merge.</dd>
+      <dt>Merge</dt>
+      <dd>Approving that fold. Now it's part of main.</dd>
+      <dt>Markdown (.md)</dt>
+      <dd>A plain text file where <code>#</code> makes a heading and <code>-</code> makes a bullet. That's most of it.</dd>
+      <dt>YAML (.yaml)</dt>
+      <dd>A plain text file for lists and settings, written as <code>name: value</code>. Indentation matters.</dd>
+      <dt>CLAUDE.md</dt>
+      <dd>The standing instructions Claude reads before every conversation, on every device.</dd>
+    </dl>
+  </div>
+</section>
+
+<section>
+  <p class="section-label">Your first week</p>
+  <div class="wrap">
+    <p>Don't try to move everything in at once. The folder should grow out of use, not out of a plan.</p>
+    <div class="card">
+      <p><strong>Day 1.</strong> Finish steps 1&ndash;6. Add one real file &mdash; a <code>TODO.md</code> with the three things actually nagging you.</p>
+      <p><strong>Days 2&ndash;5.</strong> Log each day from your phone, in whatever words come out. Nothing else. Let the journal accumulate.</p>
+      <p><strong>Day 6.</strong> Ask &ldquo;what did you notice this week?&rdquo; This is the moment it stops feeling like filing and starts feeling like help.</p>
+      <p style="margin-bottom:0"><strong>Day 7.</strong> Ask it to plan next week. Then fix what it got wrong &mdash; by adding a rule to your <code>CLAUDE.md</code>, so it never gets that wrong again.</p>
+    </div>
+    <p>That last habit is the whole thing, really. Every correction you write down once is a correction you don't repeat. The folder gets smarter because you keep teaching it, which is a job you already know how to do.</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Written for a group of homeschooling parents, from one family's working setup. Everything here reflects Claude Code as of August 2026; the official docs live at <a href="https://code.claude.com/docs">code.claude.com/docs</a>.</p>
+</footer>

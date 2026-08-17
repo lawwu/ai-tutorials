@@ -1,0 +1,97 @@
+# OPTIONAL — a weekly privacy check. Set this up once you're comfortable,
+# not on day one.
+#
+# What it does: every Monday afternoon, Claude reviews the week's changes
+# against the "Never commit" list in CLAUDE.md and opens a GitHub issue
+# only if it finds something. It never changes or commits anything.
+#
+# To turn it on:
+#   1. In the Claude Code CLI, run:  /install-github-app
+#      (or create a long-lived token and add it yourself)
+#   2. On github.com: your repo -> Settings -> Secrets and variables ->
+#      Actions -> New repository secret
+#      Name: CLAUDE_CODE_OAUTH_TOKEN
+#      Value: the token from step 1
+#   3. Commit this file. It runs on the next Monday, or immediately from
+#      the Actions tab -> Weekly guardrail -> Run workflow.
+#
+# To leave it off: delete this file. Nothing else depends on it.
+
+name: Weekly guardrail
+
+on:
+  schedule:
+    # Monday 22:00 UTC = Monday 3:00 pm US Pacific during daylight time.
+    # Adjust for your timezone: https://crontab.guru
+    - cron: "0 22 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  guardrail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Privacy and format scan
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            You are the weekly guardrail for this private family homeschool
+            repo. This is a read-only run: do NOT modify, commit, or push
+            anything. Scan, then report via a GitHub issue only if something
+            was found.
+
+            Scan window: commits from the last 8 days (one day of overlap
+            with the previous run is intentional). Use git log --since="8
+            days ago" and git show to review each commit's diff. Format
+            checks run against the current tree.
+
+            STEP 1 - Privacy scan of the window's diffs, per the "Never
+            commit" section of CLAUDE.md. Flag any newly added:
+            - Home address, or government/school identity documents
+            - SSN, or a state student identifier
+            - Medical or health information about anyone in the family
+            - Credentials of any kind: passwords, API keys, tokens
+              (e.g. sk-ant-, ghp_, github_pat_, xox prefixes, private key blocks)
+            - Financial account numbers
+            - Images: for every image file added in the window, view it with
+              the Read tool and flag it if any person is in frame (photos of
+              schoolwork with no child visible are fine)
+
+            STEP 2 - Format checks on the current tree:
+            - YAML validity: family.yaml and every .yaml under curricula/
+              must parse (use python3 with yaml.safe_load)
+            - Journal append-only: flag any commit in the window that deleted
+              lines from a pre-existing file under journal/
+
+            STEP 3 - Report:
+            - First run: gh issue list --state open --search "Guardrail"
+              If a guardrail issue from a previous run is still open, add a
+              comment there instead of opening a duplicate.
+            - Privacy findings: open an issue titled
+              "Guardrail: PRIVACY - action needed". CRITICAL: identify each
+              finding ONLY by file path, line number, commit hash, and
+              category. NEVER quote, excerpt, or paraphrase the sensitive
+              value itself - not in the issue body, not in any command you
+              run (it would land in this workflow's logs). Remind in the
+              issue that removal requires a git history rewrite, not just a
+              new commit.
+            - Format-only findings: open an issue titled
+              "Guardrail: format fixes" with a short checklist (file, line,
+              which rule).
+            - Nothing found: open no issue; just print a one-line all-clear.
+          claude_args: |
+            --allowedTools "Read,Grep,Glob,Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(python3:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue comment:*)"

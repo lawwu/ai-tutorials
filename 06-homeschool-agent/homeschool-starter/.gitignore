@@ -1,0 +1,18 @@
+# macOS noise
+.DS_Store
+Thumbs.db
+
+# Python bytecode, if you end up with helper scripts
+__pycache__/
+*.pyc
+
+# Screen recordings and video — too large for GitHub's 100MB file limit,
+# and screen captures of a school portal can contain exactly the things
+# this folder must never hold (student IDs, addresses, credentials).
+# Keep them outside the repo.
+*.mov
+*.mp4
+
+# Scanned paperwork often carries identity documents. If you need to keep
+# a PDF, read it first and confirm what's on every page.
+# *.pdf
